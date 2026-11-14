@@ -171,7 +171,7 @@ function menu(){
   const l=idsOf(1,'all').length,n=idsOf(0,'all').length;
   const all=Array.from({length:TOTAL},(_,i)=>i+1).filter(i=>menuGen==='all'||genOf(i)===+menuGen);
   const list=menuTab==='all'?all:idsOf(menuTab==='1'?1:0,menuGen);
-  main.innerHTML=`<div class="tabs"><button data-t="all" class="${menuTab==='all'?'on':''}">Pokémon ${TOTAL}</button><button data-t="1" class="${menuTab==='1'?'on':''}">💗 Con amor ${l}</button><button data-t="0" class="${menuTab==='0'?'on':''}">✕ Sin amor ${n}</button></div>
+  main.innerHTML=`<div class="tabs"><button data-t="all" class="${menuTab==='all'?'on':''}" aria-label="Todos los Pokémon" title="Todos los Pokémon">Pokémon</button><button data-t="1" class="${menuTab==='1'?'on':''}" aria-label="Con amor" title="Con amor">♥</button><button data-t="0" class="${menuTab==='0'?'on':''}" aria-label="Sin amor" title="Sin amor">♡</button></div>
   <select id="gf" aria-label="Filtrar por generación"><option value="all">Todas las generaciones</option>${GENS.map((g,i)=>`<option value="${i}"${String(menuGen)===String(i)?' selected':''}>Gen ${i+1} · ${g[2]} (#${g[0]}–#${g[1]})</option>`).join('')}</select>
   <div class="scroll">${list.length?`<div class="grid">${list.map(i=>`<button class="tile" data-id="${i}"><img loading="lazy" alt="Pokémon ${i}" src="${art(i)}">#${i}</button>`).join('')}</div>`:'<p class="empty">Todavía no hay Pokémon aquí.</p>'}</div>
   <div class="row"><button class="primary" id="sh">Compartir resultado</button><button class="ghost" id="cp">Copiar texto</button></div>
