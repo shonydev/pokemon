@@ -189,7 +189,7 @@ function readSharedCollection(){
     const raw=atob(encoded+'='.repeat((4-encoded.length%4)%4));
     let tab='1',gen='all',bits=raw;
     if(raw.startsWith('v2|')){
-      const header=raw.match(/^v2\\|(all|1|0)\\|(all|[0-8])\\|/);
+      const header=raw.match(/^v2\|(all|1|0)\|(all|[0-8])\|/);
       if(!header)return null;
       tab=header[1];gen=header[2];bits=raw.slice(header[0].length);
     }
