@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>¿Con amor?</title>
+<meta name="theme-color" content="#efe6f7">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="¿Con amor?">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+:root{--bg:#efe6f7;--ink:#2b1636;--soft:#7a6a86;--card:#fff;--love:#e0245e;--nope:#4f5f86;--r:28px}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1226;--ink:#f6ecfb;--soft:#a898b5;--card:#2b1c38}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",sans-serif;overscroll-behavior:none;overflow:hidden;
+padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#app{height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;padding:12px 18px 16px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+header h1{font-size:1.15rem;margin:0;font-weight:800}
+header small{color:var(--soft);display:block;font-weight:600;font-size:.78rem}
+.ghost{background:none;border:0;color:var(--ink);font:inherit;font-weight:700;padding:8px 10px;border-radius:12px}
+.ghost:focus-visible,.btn:focus-visible,.primary:focus-visible{outline:3px solid var(--love);outline-offset:2px}
+.bar{height:6px;background:color-mix(in srgb,var(--ink) 12%,transparent);border-radius:9px;margin:10px 0 14px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--love);border-radius:9px;transition:width .3s}
+#deck{flex:1;position:relative;min-height:0}
+.card{position:absolute;inset:0;background:var(--card);border-radius:var(--r);box-shadow:0 14px 40px -18px rgba(43,22,54,.55);display:flex;flex-direction:column;align-items:center;padding:20px 18px 18px;touch-action:none;user-select:none;-webkit-user-select:none;will-change:transform}
+.card.under{transform:scale(.95) translateY(14px);opacity:.7;pointer-events:none}
+.card .tint{position:absolute;inset:0;border-radius:var(--r);opacity:0;pointer-events:none}
+.card .num{align-self:flex-start;font-weight:800;color:var(--soft)}
+.card img{flex:1;min-height:0;width:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;margin:6px 0;filter:drop-shadow(0 12px 10px rgba(43,22,54,.25))}
+.card h2{margin:0;font-size:1.9rem;text-transform:capitalize;text-align:center}
+.card .genus{color:var(--soft);font-weight:600;margin:2px 0 10px;min-height:1.3em;text-align:center}
+.types{display:flex;gap:8px;min-height:30px}
+.types span{padding:5px 14px;border-radius:99px;background:color-mix(in srgb,var(--ink) 10%,transparent);font-weight:700;font-size:.85rem}
+.stamp{position:absolute;top:34px;font-size:1.5rem;font-weight:900;padding:6px 14px;border:4px solid;border-radius:14px;opacity:0;pointer-events:none;background:var(--card)}
+.stamp.l{left:18px;color:var(--love);transform:rotate(-14deg)}
+.stamp.n{right:18px;color:var(--nope);transform:rotate(14deg)}
+.actions{display:flex;justify-content:center;gap:34px;padding-top:16px}
+.btn{width:78px;height:78px;border-radius:50%;border:0;font-size:2rem;color:#fff;box-shadow:0 10px 22px -10px rgba(0,0,0,.5);transition:transform .12s}
+.btn:active{transform:scale(.92)}
+.btn.no{background:var(--nope)}.btn.yes{background:var(--love)}
+.panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;min-height:0}
+.panel h2{font-size:2rem;margin:0}.panel p{margin:0;color:var(--soft);font-weight:600;max-width:30ch}
+.big{font-size:3.4rem;line-height:1}
+.primary{margin-top:10px;background:var(--love);color:#fff;border:0;font:inherit;font-weight:800;font-size:1.05rem;padding:14px 30px;border-radius:99px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;width:100%;overflow:auto;padding:4px}
+.grid div{background:var(--card);border-radius:16px;padding:4px;font-size:.68rem;font-weight:700;text-transform:capitalize}
+.grid img{width:100%;aspect-ratio:1;object-fit:contain}
+.scroll{flex:1;overflow:auto;width:100%;min-height:0}
+.tabs{display:flex;gap:8px;margin-bottom:10px}
+.tabs button{flex:1;border:0;font:inherit;font-weight:800;padding:12px 8px;border-radius:14px;background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink)}
+.tabs button.on{background:var(--love);color:#fff}
+.tabs button[data-t="0"].on{background:var(--nope)}
+#gf{width:100%;font:inherit;font-weight:700;padding:10px 12px;border-radius:14px;border:0;background:var(--card);color:var(--ink);margin-bottom:10px}
+.tile{border:0;background:var(--card);border-radius:16px;padding:4px;font:inherit;font-size:.68rem;font-weight:700;color:var(--ink)}
+.tile img{width:100%;aspect-ratio:1;object-fit:contain;display:block}
+.empty{color:var(--soft);font-weight:600;text-align:center;margin-top:40px}
+.row{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:10px}
+.row .primary{margin:0;flex:1}
+.modal{position:fixed;inset:0;background:rgba(20,8,28,.55);display:flex;align-items:flex-end;justify-content:center;z-index:5}
+.sheet{background:var(--card);width:100%;max-width:480px;border-radius:var(--r) var(--r) 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:6px}
+.sheet img{width:60%;max-height:34vh;object-fit:contain}
+.sheet h2{margin:0;text-transform:capitalize}
+.sheet .genus{color:var(--soft);font-weight:600;min-height:1.3em}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:700;z-index:9;max-width:90vw;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1 id="gen">Generación 1<small id="sub"></small></h1>
+    <button class="ghost" id="lovedBtn" aria-label="Menú: mis votos">💗 <span id="lc">0</span> ☰</button>
+  </header>
+  <div class="bar"><i id="bar"></i></div>
+  <main id="main" style="flex:1;display:flex;flex-direction:column;min-height:0"></main>
+</div>
+<script>
+const GENS=[[1,151,'Kanto'],[152,251,'Johto'],[252,386,'Hoenn'],[387,493,'Sinnoh'],[494,649,'Teselia'],[650,721,'Kalos'],[722,809,'Alola'],[810,905,'Galar'],[906,1025,'Paldea']];
+const TIPOS={normal:'Normal',fire:'Fuego',water:'Agua',electric:'Eléctrico',grass:'Planta',ice:'Hielo',fighting:'Lucha',poison:'Veneno',ground:'Tierra',flying:'Volador',psychic:'Psíquico',bug:'Bicho',rock:'Roca',ghost:'Fantasma',dragon:'Dragón',dark:'Siniestro',steel:'Acero',fairy:'Hada'};
+const KEY='pokemor-v1', TOTAL=1025;
+const art=id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+S=S||{i:1,v:{},g:1};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=s=>document.querySelector(s), main=$('#main');
+const genOf=id=>GENS.findIndex(g=>id>=g[0]&&id<=g[1]);
+const cache={};
+function info(id){
+  return cache[id]||(cache[id]=Promise.all([
+    fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`).then(r=>r.json()),
+    fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(r=>r.json())
+  ]).then(([s,p])=>({
+    name:(s.names.find(n=>n.language.name==='es')||{name:s.name}).name,
+    genus:(s.genera.find(n=>n.language.name==='es')||{genus:''}).genus,
+    types:p.types.map(t=>TIPOS[t.type.name]||t.type.name)
+  })).catch(()=>{delete cache[id];return null}));
+}
+const loved=()=>Object.keys(S.v).filter(k=>S.v[k]).length;
+function header(){
+  const gi=Math.min(genOf(Math.min(S.i,TOTAL)),8),g=GENS[gi];
+  $('#gen').firstChild.nodeValue=`Generación ${gi+1}`;
+  $('#sub').textContent=`${g[2]} · ${Math.min(Math.max(S.i-g[0],0),g[1]-g[0]+1)}/${g[1]-g[0]+1}`;
+  $('#bar').style.width=((S.i-1)/TOTAL*100)+'%';
+  $('#lc').textContent=loved();
+}
+function render(){
+  header();
+  if(S.i>TOTAL)return fin();
+  const gi=genOf(S.i);
+  if(S.g<gi+1)return interstitial(gi);
+  main.innerHTML=`<div id="deck"></div><div class="actions"><button class="btn no" aria-label="Sin amor" id="no">✕</button><button class="btn yes" aria-label="Con amor" id="yes">♥</button></div>`;
+  const deck=$('#deck');
+  if(S.i+1<=TOTAL&&genOf(S.i+1)===gi)deck.append(mk(S.i+1,true));
+  const top=mk(S.i,false);deck.append(top);drag(top,S.i);
+  $('#no').onclick=()=>fly(top,-1);$('#yes').onclick=()=>fly(top,1);
+  for(let k=1;k<=3;k++)if(S.i+k<=TOTAL){info(S.i+k);const im=new Image();im.src=art(S.i+k)}
+}
+function mk(id,under){
+  const c=document.createElement('div');c.className='card'+(under?' under':'');
+  c.innerHTML=`<div class="tint"></div><span class="num">#${String(id).padStart(4,'0')}</span><img alt="" src="${art(id)}" draggable="false"><h2>…</h2><div class="genus"></div><div class="types"></div><span class="stamp l">CON AMOR</span><span class="stamp n">SIN AMOR</span>`;
+  info(id).then(d=>{if(!d)return;c.querySelector('h2').textContent=d.name;c.querySelector('.genus').textContent=d.genus;c.querySelector('.types').innerHTML=d.types.map(t=>`<span>${t}</span>`).join('')});
+  return c;
+}
+function drag(c,id){
+  let sx=0,dx=0,on=false;const tint=c.querySelector('.tint'),L=c.querySelector('.stamp.l'),N=c.querySelector('.stamp.n');
+  const set=x=>{c.style.transform=`translateX(${x}px) rotate(${x/18}deg)`;const p=Math.min(Math.abs(x)/120,1);
+    L.style.opacity=x>0?p:0;N.style.opacity=x<0?p:0;tint.style.opacity=p*.22;tint.style.background=x>0?'var(--love)':'var(--nope)'};
+  c.addEventListener('pointerdown',e=>{on=true;sx=e.clientX;c.setPointerCapture(e.pointerId);c.style.transition='none'});
+  c.addEventListener('pointermove',e=>{if(!on)return;dx=e.clientX-sx;set(dx)});
+  const end=()=>{if(!on)return;on=false;if(Math.abs(dx)>110)fly(c,dx>0?1:-1,dx);else{c.style.transition='transform .25s';set(0)}dx=0};
+  c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);
+}
+let busy=false;
+function fly(c,dir,from=0){
+  if(busy)return;busy=true;
+  const id=S.i;
+  c.style.transition='transform .28s ease-in';
+  c.style.transform=`translateX(${dir*window.innerWidth}px) rotate(${dir*24}deg)`;
+  const st=c.querySelector(dir>0?'.stamp.l':'.stamp.n');st.style.opacity=1;
+  setTimeout(()=>{S.v[id]=dir>0?1:0;S.i=id+1;save();busy=false;render()},260);
+}
+document.addEventListener('keydown',e=>{
+  const t=document.querySelector('.card:not(.under)');if(!t)return;
+  if(e.key==='ArrowRight')fly(t,1);if(e.key==='ArrowLeft')fly(t,-1);
+});
+function genStats(gi){
+  const [a,b]=GENS[gi];let l=0;for(let i=a;i<=b;i++)if(S.v[i])l++;return{l,n:b-a+1};
+}
+function interstitial(gi){
+  const p=genStats(gi-1),n=GENS[gi];
+  main.innerHTML=`<div class="panel"><div class="big">💗</div><h2>Generación ${gi} lista</h2><p>${p.l} de ${p.n} hechos con amor.</p><p>Sigue la generación ${gi+1}: ${n[2]}, ${n[1]-n[0]+1} Pokémon.</p><button class="primary" id="go">Continuar</button></div>`;
+  $('#go').onclick=()=>{S.g=gi+1;save();render()};
+}
+function fin(){
+  header();
+  const l=idsOf(1,'all').length;
+  main.innerHTML=`<div class="panel"><div class="big">🏁</div><h2>Terminaste los ${TOTAL}</h2><p>${l} hechos con amor, ${TOTAL-l} sin amor.</p><button class="primary" id="mn">Ver mis votos</button><button class="ghost" id="re">Empezar de nuevo</button></div>`;
+  $('#mn').onclick=menu;$('#re').onclick=reset;
+}
+function reset(){if(confirm('¿Borrar todos los votos y empezar desde la generación 1?')){S={i:1,v:{},g:1};save();render()}}
+let menuTab='1',menuGen='all';
+const idsOf=(v,gen)=>Object.keys(S.v).map(Number).filter(i=>S.v[i]===v&&(gen==='all'||genOf(i)===+gen)).sort((a,b)=>a-b);
+function menu(){
+  header();
+  const l=idsOf(1,'all').length,n=idsOf(0,'all').length,list=idsOf(menuTab==='1'?1:0,menuGen);
+  main.innerHTML=`<div class="tabs"><button data-t="1" class="${menuTab==='1'?'on':''}">💗 Con amor ${l}</button><button data-t="0" class="${menuTab==='0'?'on':''}">✕ Sin amor ${n}</button></div>
+  <select id="gf" aria-label="Filtrar por generación"><option value="all">Todas las generaciones</option>${GENS.map((g,i)=>`<option value="${i}"${String(menuGen)===String(i)?' selected':''}>Gen ${i+1} · ${g[2]}</option>`).join('')}</select>
+  <div class="scroll">${list.length?`<div class="grid">${list.map(i=>`<button class="tile" data-id="${i}"><img loading="lazy" alt="Pokémon ${i}" src="${art(i)}">#${i}</button>`).join('')}</div>`:'<p class="empty">Todavía no hay Pokémon aquí.</p>'}</div>
+  <div class="row"><button class="primary" id="sh">Compartir resultado</button><button class="ghost" id="cp">Copiar texto</button></div>
+  <button class="ghost" id="back">Volver a deslizar</button>`;
+  main.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{menuTab=b.dataset.t;menu()});
+  $('#gf').onchange=e=>{menuGen=e.target.value;menu()};
+  main.querySelectorAll('.tile').forEach(t=>t.onclick=()=>detail(+t.dataset.id));
+  $('#sh').onclick=compartir;$('#cp').onclick=copiar;$('#back').onclick=render;
+  getImage();
+}
+function detail(id){
+  const v=S.v[id],m=document.createElement('div');m.className='modal';
+  m.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><img alt="" src="${art(id)}"><h2>#${id}</h2><div class="genus"></div><button class="primary" id="sw">${v?'Pasar a sin amor':'Pasar a con amor'}</button><button class="ghost" id="cl">Cerrar</button></div>`;
+  info(id).then(d=>{if(d){m.querySelector('h2').textContent=d.name;m.querySelector('.genus').textContent=d.genus}});
+  m.onclick=e=>{if(e.target===m)m.remove()};
+  document.body.append(m);
+  m.querySelector('#cl').onclick=()=>m.remove();
+  m.querySelector('#sw').onclick=()=>{S.v[id]=v?0:1;save();m.remove();menu()};
+}
+function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.append(e);setTimeout(()=>e.remove(),2600)}
+function shareText(){
+  const l=idsOf(1,'all').length,n=idsOf(0,'all').length;
+  const lines=GENS.map((g,i)=>{let c=0,v=0;for(let k=g[0];k<=g[1];k++){if(k in S.v)v++;if(S.v[k]===1)c++}return v?`Gen ${i+1} ${g[2]}: ${c} con amor de ${g[1]-g[0]+1}`:null}).filter(Boolean);
+  return `¿Con amor? 💗 Hice ${l} Pokémon con amor y ${n} sin amor.\n${lines.join('\n')}\n${location.href.split('#')[0]}`;
+}
+const sprite=id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+let imgP=null,imgSig='';
+function getImage(){
+  const L=idsOf(1,'all'),n=idsOf(0,'all').length,sig=L.join(',')+'|'+n;
+  if(imgP&&imgSig===sig)return imgP;
+  imgSig=sig;
+  return imgP=(async()=>{
+    const C=10,cell=100,pad=40,W=C*cell+pad*2,MAX=90,show=L.slice(0,MAX),rows=Math.max(1,Math.ceil(show.length/C));
+    const H=240+rows*cell+(L.length>MAX?70:20)+80;
+    const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+    const dark=matchMedia('(prefers-color-scheme:dark)').matches;
+    x.fillStyle=dark?'#1d1226':'#efe6f7';x.fillRect(0,0,W,H);
+    x.fillStyle=dark?'#f6ecfb':'#2b1636';x.font='800 68px ui-rounded, system-ui, sans-serif';x.fillText('¿Con amor?',pad,110);
+    x.fillStyle=dark?'#a898b5':'#7a6a86';x.font='700 34px ui-rounded, system-ui, sans-serif';x.fillText(`${L.length} con amor · ${n} sin amor`,pad,165);
+    x.fillStyle='#e0245e';x.fillRect(pad,190,W-pad*2,6);
+    const imgs=await Promise.all(show.map(id=>new Promise(r=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>r(im);im.onerror=()=>r(null);im.src=sprite(id)})));
+    x.imageSmoothingEnabled=false;
+    imgs.forEach((im,k)=>{if(im)x.drawImage(im,pad+(k%C)*cell,230+Math.floor(k/C)*cell,cell,cell)});
+    x.fillStyle='#e0245e';x.font='800 34px ui-rounded, system-ui, sans-serif';
+    if(L.length>MAX)x.fillText(`+${L.length-MAX} más`,pad,230+rows*cell+45);
+    x.fillStyle=dark?'#a898b5':'#7a6a86';x.font='700 28px ui-rounded, system-ui, sans-serif';x.fillText('Pokémon hechos con amor 💗',pad,H-34);
+    return new Promise(r=>cv.toBlob(r,'image/png'));
+  })();
+}
+async function copiar(){
+  try{await navigator.clipboard.writeText(shareText());toast('Texto copiado')}catch(e){toast('No se pudo copiar')}
+}
+async function compartir(){
+  const text=shareText();
+  let blob=null;
+  try{blob=await getImage()}catch(e){}
+  try{
+    if(blob){
+      const f=new File([blob],'pokemon-con-amor.png',{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text});return}
+    }
+    if(navigator.share){await navigator.share({text});return}
+  }catch(e){if(e.name==='AbortError')return}
+  if(blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pokemon-con-amor.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+  try{await navigator.clipboard.writeText(text);toast('Imagen descargada y texto copiado')}catch(e){toast(blob?'Imagen descargada':'No se pudo compartir')}
+}
+$('#lovedBtn').onclick=menu;
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+render();
+</script>
+</body>
+</html>
