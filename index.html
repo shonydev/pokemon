@@ -87,7 +87,19 @@ const KEY='pokemor-v1', TOTAL=1025;
 const art=id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 S=S||{i:1,v:{},g:1};
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+
+// Store reactivo centralizado: cada escritura persiste y notifica a las vistas suscriptas.
+const stateListeners=new Set();
+const store={
+  getState:()=>S,
+  subscribe(listener){stateListeners.add(listener);return()=>stateListeners.delete(listener)},
+  commit(mutator){
+    mutator(S);
+    try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+    stateListeners.forEach(listener=>listener(S));
+  }
+};
+const save=()=>store.commit(()=>{});
 const $=s=>document.querySelector(s), main=$('#main');
 const genOf=id=>GENS.findIndex(g=>id>=g[0]&&id<=g[1]);
 const cache={};
@@ -110,6 +122,7 @@ function header(){
   $('#lc').textContent=loved();
 }
 function render(){
+  currentView='deck';
   header();
   if(S.i>TOTAL)return fin();
   const gi=genOf(S.i);
@@ -164,9 +177,11 @@ function fin(){
   $('#mn').onclick=menu;$('#re').onclick=reset;
 }
 function reset(){if(confirm('¿Borrar todos los votos y empezar desde la generación 1?')){S={i:1,v:{},g:1};save();render()}}
+let currentView='deck';
 let menuTab='all',menuGen='all';
 const idsOf=(v,gen)=>Array.from({length:TOTAL},(_,i)=>i+1).filter(i=>(v===1?S.v[i]===1:!S.v[i])&&(gen==='all'||genOf(i)===+gen));
 function menu(){
+  currentView='menu';
   header();
   const l=idsOf(1,'all').length,n=idsOf(0,'all').length;
   const all=Array.from({length:TOTAL},(_,i)=>i+1).filter(i=>menuGen==='all'||genOf(i)===+menuGen);
@@ -192,8 +207,7 @@ function detail(id){
   m.querySelector('#cl').onclick=()=>m.remove();
   m.querySelector('#like').onclick=()=>{
     const nextLiked=S.v[id]!==1;
-    if(nextLiked)S.v[id]=1;else S.v[id]=0;
-    save();
+    store.commit(state=>{if(nextLiked)state.v[id]=1;else state.v[id]=0});
     const button=m.querySelector('#like');
     button.classList.toggle('active',nextLiked);
     button.textContent=nextLiked?'♥':'♡';
@@ -248,6 +262,11 @@ async function compartir(){
   if(blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pokemon-con-amor.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
   try{await navigator.clipboard.writeText(text);toast('Imagen descargada y texto copiado')}catch(e){toast(blob?'Imagen descargada':'No se pudo compartir')}
 }
+// Las vistas derivadas reaccionan al store sin esperar a desmontar/montar componentes.
+store.subscribe(()=>{
+  header();
+  if(currentView==='menu')menu();
+});
 $('#lovedBtn').onclick=menu;
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
