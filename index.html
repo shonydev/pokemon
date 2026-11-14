@@ -189,9 +189,9 @@ function readSharedCollection(){
     const raw=atob(encoded+'='.repeat((4-encoded.length%4)%4));
     let tab='1',gen='all',bits=raw;
     if(raw.startsWith('v2|')){
-      const parts=raw.split('|');
-      if(parts.length!==4||!['all','1','0'].includes(parts[1])||!(parts[2]==='all'||/^[0-8]$/.test(parts[2])))return null;
-      [,tab,gen,bits]=parts;
+      const header=raw.match(/^v2\\|(all|1|0)\\|(all|[0-8])\\|/);
+      if(!header)return null;
+      tab=header[1];gen=header[2];bits=raw.slice(header[0].length);
     }
     const ids=[];
     for(let i=0;i<TOTAL;i++)if(bits.charCodeAt(i>>3)&(1<<(i&7)))ids.push(i+1);
