@@ -13,7 +13,7 @@ PWA para recorrer los **1025 Pokémon** por generación. Deslizá a la **derecha
 
 ## Aplicación publicada
 
-https://shonydev.github.io/pokemon/
+**[Abrir ¿Con amor? Pokémon](https://shonydev.github.io/pokemon/)**
 
 ## Despliegue
 
