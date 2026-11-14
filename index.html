@@ -156,7 +156,7 @@ function fly(c,dir,from=0){
   c.style.transition='transform .28s ease-in';
   c.style.transform=`translateX(${dir*window.innerWidth}px) rotate(${dir*24}deg)`;
   const st=c.querySelector(dir>0?'.stamp.l':'.stamp.n');st.style.opacity=1;
-  setTimeout(()=>{S.v[id]=dir>0?1:0;S.i=id+1;save();busy=false;render()},260);
+  setTimeout(()=>{store.commit(state=>{state.v[id]=dir>0?1:0;state.i=id+1});busy=false;render()},260);
 }
 document.addEventListener('keydown',e=>{
   const t=document.querySelector('.card:not(.under)');if(!t)return;
@@ -168,7 +168,7 @@ function genStats(gi){
 function interstitial(gi){
   const p=genStats(gi-1),n=GENS[gi];
   main.innerHTML=`<div class="panel"><div class="big">💗</div><h2>Generación ${gi} lista</h2><p>${p.l} de ${p.n} hechos con amor.</p><p>Sigue la generación ${gi+1}: ${n[2]}, ${n[1]-n[0]+1} Pokémon.</p><button class="primary" id="go">Continuar</button></div>`;
-  $('#go').onclick=()=>{S.g=gi+1;save();render()};
+  $('#go').onclick=()=>{store.commit(state=>{state.g=gi+1});render()};
 }
 function fin(){
   header();
@@ -176,7 +176,7 @@ function fin(){
   main.innerHTML=`<div class="panel"><div class="big">🏁</div><h2>Terminaste los ${TOTAL}</h2><p>${l} hechos con amor, ${TOTAL-l} sin amor.</p><button class="primary" id="mn">Ver mis votos</button><button class="ghost" id="re">Empezar de nuevo</button></div>`;
   $('#mn').onclick=menu;$('#re').onclick=reset;
 }
-function reset(){if(confirm('¿Borrar todos los votos y empezar desde la generación 1?')){S={i:1,v:{},g:1};save();render()}}
+function reset(){if(confirm('¿Borrar todos los votos y empezar desde la generación 1?')){store.commit(()=>{S={i:1,v:{},g:1}});render()}}
 let currentView='deck';
 let menuTab='all',menuGen='all';
 const idsOf=(v,gen)=>Array.from({length:TOTAL},(_,i)=>i+1).filter(i=>(v===1?S.v[i]===1:!S.v[i])&&(gen==='all'||genOf(i)===+gen));
