@@ -123,6 +123,7 @@ function header(){
 }
 function render(){
   currentView='deck';
+  if(sharedCollection){renderSharedCollection();return;}
   header();
   if(S.i>TOTAL)return fin();
   const gi=genOf(S.i);
@@ -179,6 +180,37 @@ function fin(){
 function reset(){if(confirm('¿Borrar todos los votos y empezar desde la generación 1?')){store.commit(()=>{S={i:1,v:{},g:1}});render()}}
 let currentView='deck';
 let menuTab='all',menuGen='all';
+const sharedCollection=readSharedCollection();
+function readSharedCollection(){
+  const match=location.hash.match(/(?:^#|&)coleccion=([A-Za-z0-9_-]+)/);
+  if(!match)return null;
+  try{
+    const raw=atob(match[1].replace(/-/g,'+').replace(/_/g,'/')+'==='.slice((match[1].length+3)%4));
+    const ids=[];
+    for(let i=0;i<TOTAL;i++)if(raw.charCodeAt(i>>3)&(1<<(i&7)))ids.push(i+1);
+    return ids;
+  }catch(e){return null}
+}
+function renderSharedCollection(){
+  header();
+  const ids=sharedCollection||[];
+  $('#gen').firstChild.nodeValue='Colección compartida';
+  $('#sub').textContent=ids.length+' Pokémon con amor';
+  $('#lovedBtn').hidden=true;
+  $('#bar').style.width='100%';
+  main.innerHTML=`<div class="panel" style="flex:0 0 auto;padding:8px"><h2>Colección compartida 💗</h2><p>Vista de solo lectura · ${ids.length} Pokémon</p></div><div class="scroll">${ids.length?`<div class="grid">${ids.map(i=>`<div class="tile"><img loading="lazy" alt="Pokémon #${i}" src="${art(i)}">#${i}</div>`).join('')}</div>`:'<p class="empty">Esta colección no contiene likes.</p>'}</div>`;
+}
+async function compartirColeccion(){
+  const bytes=new Uint8Array(Math.ceil(TOTAL/8));
+  idsOf(1,'all').forEach(id=>{bytes[(id-1)>>3]|=1<<((id-1)&7)});
+  let binary='';bytes.forEach(b=>binary+=String.fromCharCode(b));
+  const encoded=btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const url=location.origin+location.pathname+'#coleccion='+encoded;
+  try{
+    if(navigator.share){await navigator.share({title:'Mi colección Pokémon',text:'Mirá mis Pokémon favoritos:',url});return}
+    await navigator.clipboard.writeText(url);toast('Enlace de colección copiado');
+  }catch(e){if(e.name!=='AbortError')toast('No se pudo compartir el enlace')}
+}
 const idsOf=(v,gen)=>Array.from({length:TOTAL},(_,i)=>i+1).filter(i=>(v===1?S.v[i]===1:!S.v[i])&&(gen==='all'||genOf(i)===+gen));
 function menu(){
   currentView='menu';
@@ -189,12 +221,12 @@ function menu(){
   main.innerHTML=`<div class="tabs"><button data-t="all" class="${menuTab==='all'?'on':''}" aria-label="Todos los Pokémon" title="Todos los Pokémon">Pokémon</button><button data-t="1" class="${menuTab==='1'?'on':''}" aria-label="Con amor" title="Con amor">♥</button><button data-t="0" class="${menuTab==='0'?'on':''}" aria-label="Sin amor" title="Sin amor">♡</button></div>
   <select id="gf" aria-label="Filtrar por generación"><option value="all">Todas las generaciones</option>${GENS.map((g,i)=>`<option value="${i}"${String(menuGen)===String(i)?' selected':''}>Gen ${i+1} · ${g[2]} (#${g[0]}–#${g[1]})</option>`).join('')}</select>
   <div class="scroll">${list.length?`<div class="grid">${list.map(i=>`<button class="tile" data-id="${i}"><img loading="lazy" alt="Pokémon ${i}" src="${art(i)}">#${i}</button>`).join('')}</div>`:'<p class="empty">Todavía no hay Pokémon aquí.</p>'}</div>
-  <div class="row"><button class="primary" id="sh">Compartir resultado</button><button class="ghost" id="cp">Copiar texto</button></div>
+  <div class="row"><button class="primary" id="sh">Compartir colección</button><button class="ghost" id="cp">Copiar texto</button></div>
   <button class="ghost" id="back">Volver a deslizar</button>`;
   main.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{menuTab=b.dataset.t;menu()});
   $('#gf').onchange=e=>{menuGen=e.target.value;menu()};
   main.querySelectorAll('.tile').forEach(t=>t.onclick=()=>detail(+t.dataset.id));
-  $('#sh').onclick=compartir;$('#cp').onclick=copiar;$('#back').onclick=render;
+  $('#sh').onclick=compartirColeccion;$('#cp').onclick=copiar;$('#back').onclick=render;
   getImage();
 }
 function detail(id){
