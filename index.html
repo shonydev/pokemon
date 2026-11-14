@@ -163,13 +163,15 @@ function fin(){
   $('#mn').onclick=menu;$('#re').onclick=reset;
 }
 function reset(){if(confirm('¿Borrar todos los votos y empezar desde la generación 1?')){S={i:1,v:{},g:1};save();render()}}
-let menuTab='1',menuGen='all';
+let menuTab='all',menuGen='all';
 const idsOf=(v,gen)=>Object.keys(S.v).map(Number).filter(i=>S.v[i]===v&&(gen==='all'||genOf(i)===+gen)).sort((a,b)=>a-b);
 function menu(){
   header();
-  const l=idsOf(1,'all').length,n=idsOf(0,'all').length,list=idsOf(menuTab==='1'?1:0,menuGen);
-  main.innerHTML=`<div class="tabs"><button data-t="1" class="${menuTab==='1'?'on':''}">💗 Con amor ${l}</button><button data-t="0" class="${menuTab==='0'?'on':''}">✕ Sin amor ${n}</button></div>
-  <select id="gf" aria-label="Filtrar por generación"><option value="all">Todas las generaciones</option>${GENS.map((g,i)=>`<option value="${i}"${String(menuGen)===String(i)?' selected':''}>Gen ${i+1} · ${g[2]}</option>`).join('')}</select>
+  const l=idsOf(1,'all').length,n=idsOf(0,'all').length;
+  const all=Array.from({length:TOTAL},(_,i)=>i+1).filter(i=>menuGen==='all'||genOf(i)===+menuGen);
+  const list=menuTab==='all'?all:idsOf(menuTab==='1'?1:0,menuGen);
+  main.innerHTML=`<div class="tabs"><button data-t="all" class="${menuTab==='all'?'on':''}">Pokémon ${TOTAL}</button><button data-t="1" class="${menuTab==='1'?'on':''}">💗 Con amor ${l}</button><button data-t="0" class="${menuTab==='0'?'on':''}">✕ Sin amor ${n}</button></div>
+  <select id="gf" aria-label="Filtrar por generación"><option value="all">Todas las generaciones</option>${GENS.map((g,i)=>`<option value="${i}"${String(menuGen)===String(i)?' selected':''}>Gen ${i+1} · ${g[2]} (#${g[0]}–#${g[1]})</option>`).join('')}</select>
   <div class="scroll">${list.length?`<div class="grid">${list.map(i=>`<button class="tile" data-id="${i}"><img loading="lazy" alt="Pokémon ${i}" src="${art(i)}">#${i}</button>`).join('')}</div>`:'<p class="empty">Todavía no hay Pokémon aquí.</p>'}</div>
   <div class="row"><button class="primary" id="sh">Compartir resultado</button><button class="ghost" id="cp">Copiar texto</button></div>
   <button class="ghost" id="back">Volver a deslizar</button>`;
