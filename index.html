@@ -66,6 +66,7 @@ header small{color:var(--soft);display:block;font-weight:600;font-size:.78rem}
 .sheet img{width:60%;max-height:34vh;object-fit:contain}
 .sheet h2{margin:0;text-transform:capitalize}
 .sheet .genus{color:var(--soft);font-weight:600;min-height:1.3em}
+.like-toggle{width:68px;height:68px;border:0;border-radius:50%;background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--soft);font-size:2.25rem;line-height:1;display:grid;place-items:center;margin:12px 0 4px;transition:transform .12s,background .12s,color .12s}.like-toggle:active{transform:scale(.92)}.like-toggle.active{background:var(--love);color:#fff;box-shadow:0 8px 20px -9px rgba(224,36,94,.8)}.like-toggle:focus-visible{outline:3px solid var(--love);outline-offset:3px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:700;z-index:9;max-width:90vw;text-align:center}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -164,7 +165,7 @@ function fin(){
 }
 function reset(){if(confirm('¿Borrar todos los votos y empezar desde la generación 1?')){S={i:1,v:{},g:1};save();render()}}
 let menuTab='all',menuGen='all';
-const idsOf=(v,gen)=>Object.keys(S.v).map(Number).filter(i=>S.v[i]===v&&(gen==='all'||genOf(i)===+gen)).sort((a,b)=>a-b);
+const idsOf=(v,gen)=>Array.from({length:TOTAL},(_,i)=>i+1).filter(i=>(v===1?S.v[i]===1:!S.v[i])&&(gen==='all'||genOf(i)===+gen));
 function menu(){
   header();
   const l=idsOf(1,'all').length,n=idsOf(0,'all').length;
@@ -182,13 +183,23 @@ function menu(){
   getImage();
 }
 function detail(id){
-  const v=S.v[id],m=document.createElement('div');m.className='modal';
-  m.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><img alt="" src="${art(id)}"><h2>#${id}</h2><div class="genus"></div><button class="primary" id="sw">${v?'Pasar a sin amor':'Pasar a con amor'}</button><button class="ghost" id="cl">Cerrar</button></div>`;
+  const m=document.createElement('div');m.className='modal';
+  const liked=S.v[id]===1;
+  m.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="Vista previa del Pokémon"><img alt="" src="${art(id)}"><h2>#${id}</h2><div class="genus"></div><button class="like-toggle ${liked?'active':''}" id="like" type="button" aria-label="${liked?'Quitar like':'Dar like'}" aria-pressed="${liked}">${liked?'♥':'♡'}</button><button class="ghost" id="cl">Cerrar</button></div>`;
   info(id).then(d=>{if(d){m.querySelector('h2').textContent=d.name;m.querySelector('.genus').textContent=d.genus}});
   m.onclick=e=>{if(e.target===m)m.remove()};
   document.body.append(m);
   m.querySelector('#cl').onclick=()=>m.remove();
-  m.querySelector('#sw').onclick=()=>{S.v[id]=v?0:1;save();m.remove();menu()};
+  m.querySelector('#like').onclick=()=>{
+    const nextLiked=S.v[id]!==1;
+    if(nextLiked)S.v[id]=1;else S.v[id]=0;
+    save();
+    const button=m.querySelector('#like');
+    button.classList.toggle('active',nextLiked);
+    button.textContent=nextLiked?'♥':'♡';
+    button.setAttribute('aria-pressed',String(nextLiked));
+    button.setAttribute('aria-label',nextLiked?'Quitar like':'Dar like');
+  };
 }
 function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.append(e);setTimeout(()=>e.remove(),2600)}
 function shareText(){
